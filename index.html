@@ -91,8 +91,8 @@
         
         .dpad-container {
             position: relative;
-            width: 110px;
-            height: 110px;
+            width: 130px;
+            height: 130px;
         }
         
         .dpad-bg {
@@ -100,8 +100,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             background: rgba(50,50,50,0.5);
             border-radius: 50%;
         }
@@ -114,23 +114,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 18px;
             -webkit-tap-highlight-color: transparent;
         }
         
         .dpad-btn:active, .dpad-btn.pressed { background: #e94560; color: #fff; }
         
-        .dpad-up { top: 0; left: 50%; transform: translateX(-50%); width: 36px; height: 36px; border-radius: 8px; }
-        .dpad-down { bottom: 0; left: 50%; transform: translateX(-50%); width: 36px; height: 36px; border-radius: 8px; }
-        .dpad-left { left: 0; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 8px; }
-        .dpad-right { right: 0; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 8px; }
+        .dpad-up { top: 0; left: 50%; transform: translateX(-50%); width: 42px; height: 42px; border-radius: 8px; }
+        .dpad-down { bottom: 0; left: 50%; transform: translateX(-50%); width: 42px; height: 42px; border-radius: 8px; }
+        .dpad-left { left: 0; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 8px; }
+        .dpad-right { right: 0; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 8px; }
         
-        .dpad-ul { top: 5px; left: 5px; width: 24px; height: 24px; border-radius: 5px; font-size: 10px; opacity: 0.6; }
-        .dpad-ur { top: 5px; right: 5px; width: 24px; height: 24px; border-radius: 5px; font-size: 10px; opacity: 0.6; }
-        .dpad-dl { bottom: 5px; left: 5px; width: 24px; height: 24px; border-radius: 5px; font-size: 10px; opacity: 0.6; }
-        .dpad-dr { bottom: 5px; right: 5px; width: 24px; height: 24px; border-radius: 5px; font-size: 10px; opacity: 0.6; }
+        .dpad-ul { top: 5px; left: 5px; width: 28px; height: 28px; border-radius: 5px; font-size: 11px; opacity: 0.6; }
+        .dpad-ur { top: 5px; right: 5px; width: 28px; height: 28px; border-radius: 5px; font-size: 11px; opacity: 0.6; }
+        .dpad-dl { bottom: 5px; left: 5px; width: 28px; height: 28px; border-radius: 5px; font-size: 11px; opacity: 0.6; }
+        .dpad-dr { bottom: 5px; right: 5px; width: 28px; height: 28px; border-radius: 5px; font-size: 11px; opacity: 0.6; }
         
-        .right-controls { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .right-controls { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-right: -10px; }
         
         .action-row { display: flex; gap: 10px; align-items: center; }
         
@@ -210,14 +210,14 @@
             position: absolute;
             left: 0;
             top: 0;
-            width: 50%;
+            width: 45%;
             height: 100%;
             z-index: 10000;
             display: flex;
             align-items: flex-end;
-            justify-content: center;
-            padding-bottom: 5%;
-            padding-left: 30px;
+            justify-content: flex-start;
+            padding-bottom: 8%;
+            padding-left: 15px;
         }
         
         .fs-dpad-inner {
