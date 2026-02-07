@@ -185,33 +185,6 @@
             background: #000; 
         }
         
-        /* 竖屏时强制旋转显示为横屏 */
-        @media (orientation: portrait) {
-            .fullscreen-mode.active {
-                position: fixed;
-                width: 100vh;
-                height: 100vw;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%) rotate(90deg);
-            }
-            
-            /* 旋转90度后坐标映射：原right+bottom → 旋转后左下，原right+top → 旋转后右下 */
-            .fullscreen-mode.active .fs-dpad {
-                left: auto;
-                top: auto;
-                right: 20px;
-                bottom: 20px;
-            }
-            
-            .fullscreen-mode.active .fs-buttons {
-                left: auto;
-                bottom: auto;
-                right: 20px;
-                top: 20px;
-            }
-        }
-        
         /* 游戏画布 - 尽可能填满 */
         #game-canvas-fs {
             height: 100%;
@@ -323,6 +296,33 @@
         }
         
         .fs-buttons .small-btn:active, .fs-buttons .small-btn.pressed { background: rgba(233,69,96,0.8); color: #fff; border-color: #e94560; }
+        
+        /* 竖屏时强制旋转显示为横屏 - 必须在 fs-dpad/fs-buttons 基础样式之后 */
+        @media (orientation: portrait) {
+            .fullscreen-mode.active {
+                position: fixed;
+                width: 100vh;
+                height: 100vw;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(90deg);
+            }
+            
+            /* 旋转90度后坐标映射：原right+bottom → 旋转后左下，原right+top → 旋转后右下 */
+            .fullscreen-mode.active .fs-dpad {
+                left: auto !important;
+                top: auto !important;
+                right: 20px !important;
+                bottom: 20px !important;
+            }
+            
+            .fullscreen-mode.active .fs-buttons {
+                left: auto !important;
+                bottom: auto !important;
+                right: 20px !important;
+                top: 20px !important;
+            }
+        }
         
         /* 退出按钮 */
         .exit-fs {
