@@ -850,22 +850,25 @@
             const touch = e.changedTouches[0];
             if (!touch) return;
             
-            dpadTouchId = touch.identifier;
-            dpadCenter = { x: touch.clientX, y: touch.clientY };
+            // 获取容器的中心点
+            const container = e.currentTarget;
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
             
-            // 立即检测点击的是哪个按钮
-            const btn = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (btn && btn.classList.contains('dpad-btn')) {
-                const newKeys = new Set();
-                if (btn.dataset.keys) {
-                    btn.dataset.keys.split(',').forEach(k => newKeys.add(k));
-                } else if (btn.dataset.key) {
-                    newKeys.add(btn.dataset.key);
-                }
-                
-                newKeys.forEach(k => pressKey(k));
-                updateDpadVisual(newKeys);
-            }
+            dpadTouchId = touch.identifier;
+            dpadCenter = { x: centerX, y: centerY };
+            
+            // 立即计算方向
+            const newKeys = calcDpadDirection(touch, dpadCenter);
+            
+            // 更新按键状态
+            ['up', 'down', 'left', 'right'].forEach(k => {
+                if (newKeys.has(k)) pressKey(k);
+                else releaseKey(k);
+            });
+            
+            updateDpadVisual(newKeys);
         }
         
         function handleDpadMove(e) {
