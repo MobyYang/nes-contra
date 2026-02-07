@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>魂斗罗</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            background: #000;
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            padding-bottom: 200px; /* 给手柄留空间 */
+            background: #1a1a2e;
+        }
+        
+        h1 { color: #e94560; font-size: 20px; margin: 10px 0; font-family: sans-serif; }
+        
+        .game-wrapper {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 10px;
+            width: 100%;
+            max-width: 100vw;
+        }
+        
+        #game-canvas {
+            display: block;
+            background: #000;
+            border-radius: 8px;
+            image-rendering: pixelated;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 256 / 240;
+        }
+        
+        .top-controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .top-controls button {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        #status {
+            margin-top: 8px;
+            padding: 8px 16px;
+            background: rgba(0,255,0,0.15);
+            border-radius: 8px;
+            color: #4ade80;
+            font-size: 13px;
+            font-family: sans-serif;
+        }
+        
+        /* 竖屏手柄 */
+        .gamepad {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px 25px 20px;
+            padding-bottom: 140px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.95));
+            height: 290px;
+        }
+        
+        .dpad-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .dpad-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95px;
+            height: 95px;
+            background: rgba(50,50,50,0.5);
+            border-radius: 50%;
+        }
+        
+        .dpad-btn {
+            position: absolute;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(233,69,96,0.8);
+            color: #e94560;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .dpad-btn:active, .dpad-btn.pressed { background: #e94560; color: #fff; }
+        
+        .dpad-up { top: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; border-radius: 8px; }
+        .dpad-down { bottom: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; border-radius: 8px; }
+        .dpad-left { left: 0; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 8px; }
+        .dpad-right { right: 0; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 8px; }
+        
+        .dpad-ul { top: 8px; left: 8px; width: 28px; height: 28px; border-radius: 6px; font-size: 12px; opacity: 0.6; }
+        .dpad-ur { top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 6px; font-size: 12px; opacity: 0.6; }
+        .dpad-dl { bottom: 8px; left: 8px; width: 28px; height: 28px; border-radius: 6px; font-size: 12px; opacity: 0.6; }
+        .dpad-dr { bottom: 8px; right: 8px; width: 28px; height: 28px; border-radius: 6px; font-size: 12px; opacity: 0.6; }
+        
+        .right-controls { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        
+        .action-row { display: flex; gap: 10px; align-items: center; }
+        
+        .action-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(233,69,96,0.3);
+            border: 3px solid #e94560;
+            color: #e94560;
+            font-size: 20px;
+            font-weight: bold;
+            font-family: sans-serif;
+        }
+        
+        .action-btn:active, .action-btn.pressed { background: #e94560; color: #fff; }
+        
+        .btn-c { background: rgba(46,204,113,0.3); border-color: #2ecc71; color: #2ecc71; }
+        .btn-c:active, .btn-c.pressed { background: #2ecc71; color: #fff; }
+        .btn-b { }
+        .btn-a { width: 68px; height: 68px; font-size: 24px; }
+        
+        .start-row { display: flex; gap: 15px; }
+        
+        .small-btn {
+            background: rgba(100,100,100,0.4);
+            border: 2px solid #888;
+            color: #ccc;
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-family: sans-serif;
+        }
+        
+        .small-btn:active, .small-btn.pressed { background: #e94560; color: #fff; border-color: #e94560; }
+        
+        /* ========== 全屏横屏模式 ========== */
+        .fullscreen-mode {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: none;
+            z-index: 9999;
+        }
+        
+        .fullscreen-mode.active { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: #000; 
+        }
+        
+        /* 竖屏时强制旋转显示为横屏 */
+        @media (orientation: portrait) {
+            .fullscreen-mode.active {
+                position: fixed;
+                width: 100vh;
+                height: 100vw;
+                top: calc(50% - 50px);
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(90deg);
+            }
+        }
+        
+        /* 游戏画布 - 尽可能填满 */
+        #game-canvas-fs {
+            height: 100%;
+            width: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+        }
+        
+        /* 左侧十字键 - 叠加在画布上 */
+        .fs-dpad {
+            position: absolute;
+            left: 100px;
+            bottom: 10%;
+            width: 130px;
+            height: 130px;
+            z-index: 10000;
+        }
+        
+        .fs-dpad .dpad-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: rgba(50,50,50,0.3);
+            border-radius: 50%;
+        }
+        
+        .fs-dpad .dpad-btn {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(233,69,96,0.6);
+            color: rgba(233,69,96,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .fs-dpad .dpad-btn:active, .fs-dpad .dpad-btn.pressed { background: rgba(233,69,96,0.8); color: #fff; }
+        
+        .fs-dpad .dpad-up { top: 0; left: 50%; transform: translateX(-50%); width: 42px; height: 42px; border-radius: 8px; font-size: 18px; }
+        .fs-dpad .dpad-down { bottom: 0; left: 50%; transform: translateX(-50%); width: 42px; height: 42px; border-radius: 8px; font-size: 18px; }
+        .fs-dpad .dpad-left { left: 0; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 8px; font-size: 18px; }
+        .fs-dpad .dpad-right { right: 0; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 8px; font-size: 18px; }
+        
+        .fs-dpad .dpad-ul { top: 5px; left: 5px; width: 30px; height: 30px; border-radius: 6px; font-size: 11px; opacity: 0.5; }
+        .fs-dpad .dpad-ur { top: 5px; right: 5px; width: 30px; height: 30px; border-radius: 6px; font-size: 11px; opacity: 0.5; }
+        .fs-dpad .dpad-dl { bottom: 5px; left: 5px; width: 30px; height: 30px; border-radius: 6px; font-size: 11px; opacity: 0.5; }
+        .fs-dpad .dpad-dr { bottom: 5px; right: 5px; width: 30px; height: 30px; border-radius: 6px; font-size: 11px; opacity: 0.5; }
+        
+        /* 右侧按钮区 - A/B + SELECT/START */
+        .fs-buttons {
+            position: absolute;
+            right: 30px;
+            bottom: 10%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 10000;
+        }
+        
+        .fs-buttons .action-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .fs-buttons .action-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: rgba(233,69,96,0.2);
+            border: 3px solid rgba(233,69,96,0.7);
+            color: rgba(233,69,96,0.9);
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .fs-buttons .action-btn:active, .fs-buttons .action-btn.pressed { background: rgba(233,69,96,0.8); color: #fff; }
+        
+        .fs-buttons .btn-c { margin-top: 15px; background: rgba(46,204,113,0.2); border-color: rgba(46,204,113,0.7); color: rgba(46,204,113,0.9); }
+        .fs-buttons .btn-c:active, .fs-buttons .btn-c.pressed { background: rgba(46,204,113,0.8); color: #fff; }
+        .fs-buttons .btn-b { margin-top: 0; }
+        .fs-buttons .btn-a { margin-top: -10px; width: 65px; height: 65px; font-size: 22px; }
+        
+        .fs-buttons .start-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .fs-buttons .small-btn {
+            background: rgba(80,80,80,0.3);
+            border: 2px solid rgba(136,136,136,0.5);
+            color: rgba(200,200,200,0.8);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 10px;
+        }
+        
+        .fs-buttons .small-btn:active, .fs-buttons .small-btn.pressed { background: rgba(233,69,96,0.8); color: #fff; border-color: #e94560; }
+        
+        /* 退出按钮 */
+        .exit-fs {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.8);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: sans-serif;
+            z-index: 10001;
+        }
+        
+        /* 全屏模式下元素始终可见 */
+        .fullscreen-mode.active #game-canvas-fs,
+        .fullscreen-mode.active .fs-dpad,
+        .fullscreen-mode.active .fs-buttons,
+        .fullscreen-mode.active .exit-fs { opacity: 1; pointer-events: auto; }
+        
+        .keyboard-info {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            font-size: 12px;
+            color: #888;
+            font-family: sans-serif;
+            max-width: 350px;
+            display: none; /* 默认隐藏 */
+        }
+        
+        .keyboard-info h3 { color: #e94560; margin-bottom: 8px; font-size: 13px; }
+        
+        /* 桌面端显示键盘提示，隐藏手柄 */
+        @media (min-width: 600px) {
+            .gamepad { display: none; }
+            .keyboard-info { display: block; }
+        }
+        
+        /* 移动端：状态栏更紧凑 */
+        @media (max-width: 599px) {
+            h1 { font-size: 16px; margin: 5px 0; }
+            .top-controls button { padding: 8px 12px; font-size: 12px; }
+            #status { font-size: 11px; padding: 6px 10px; }
+            .game-wrapper { padding: 5px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="normalMode">
+        <h1>🎮 魂斗罗</h1>
+        <div class="game-wrapper">
+            <canvas id="game-canvas" width="256" height="240"></canvas>
+            <div class="top-controls">
+                <button id="pauseBtn">⏸️</button>
+                <button id="resetBtn">🔄</button>
+                <button id="fullscreenBtn">📺 全屏</button>
+                <button id="soundBtn">🔇 音效</button>
+            </div>
+            <div id="status">⏳ 加载中...</div>
+        </div>
+        
+        <div class="keyboard-info">
+            <h3>⌨️ 方向键 | X跳 | Z射 | Enter开始</h3>
+        </div>
+        
+        <div class="gamepad">
+            <div class="dpad-container">
+                <div class="dpad-bg"></div>
+                <button class="dpad-btn dpad-up" data-key="up">↑</button>
+                <button class="dpad-btn dpad-down" data-key="down">↓</button>
+                <button class="dpad-btn dpad-left" data-key="left">←</button>
+                <button class="dpad-btn dpad-right" data-key="right">→</button>
+                <button class="dpad-btn dpad-ul" data-keys="up,left">↖</button>
+                <button class="dpad-btn dpad-ur" data-keys="up,right">↗</button>
+                <button class="dpad-btn dpad-dl" data-keys="down,left">↙</button>
+                <button class="dpad-btn dpad-dr" data-keys="down,right">↘</button>
+            </div>
+            <div class="right-controls">
+                <div class="action-row">
+                    <button class="action-btn btn-c" data-key="turbo-b">C</button>
+                    <button class="action-btn btn-b" data-key="b">B</button>
+                    <button class="action-btn btn-a" data-key="a">A</button>
+                </div>
+                <div class="start-row">
+                    <button class="small-btn" data-key="select">SEL</button>
+                    <button class="small-btn" data-key="start">START</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 全屏模式 -->
+    <div class="fullscreen-mode" id="fullscreenMode">
+        <button class="exit-fs" id="exitFsBtn">✕</button>
+        
+        <canvas id="game-canvas-fs" width="512" height="480"></canvas>
+        
+        <div class="fs-dpad">
+            <div class="dpad-bg"></div>
+            <button class="dpad-btn dpad-up" data-key="up">↑</button>
+            <button class="dpad-btn dpad-down" data-key="down">↓</button>
+            <button class="dpad-btn dpad-left" data-key="left">←</button>
+            <button class="dpad-btn dpad-right" data-key="right">→</button>
+            <button class="dpad-btn dpad-ul" data-keys="up,left">↖</button>
+            <button class="dpad-btn dpad-ur" data-keys="up,right">↗</button>
+            <button class="dpad-btn dpad-dl" data-keys="down,left">↙</button>
+            <button class="dpad-btn dpad-dr" data-keys="down,right">↘</button>
+        </div>
+        
+        <div class="fs-buttons">
+            <div class="action-row">
+                <button class="action-btn btn-c" data-key="turbo-b">C</button>
+                <button class="action-btn btn-b" data-key="b">B</button>
+                <button class="action-btn btn-a" data-key="a">A</button>
+            </div>
+            <div class="start-row">
+                <button class="small-btn" data-key="select">SEL</button>
+                <button class="small-btn" data-key="start">START</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/jsnes@1.2.1/dist/jsnes.min.js"></script>
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const canvasFs = document.getElementById('game-canvas-fs');
+        const ctx = canvas.getContext('2d');
+        const ctxFs = canvasFs.getContext('2d');
+        const status = document.getElementById('status');
+        const soundBtn = document.getElementById('soundBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const exitFsBtn = document.getElementById('exitFsBtn');
+        
+        let nes = null;
+        let frameBuffer = null;
+        let animationId = null;
+        let isPaused = false;
+        let isFullscreen = false;
+        let soundEnabled = false;
+        
+        // ========== 音频系统 (iOS 兼容) ==========
+        let audioCtx = null;
+        let audioSamples = [];
+        const SAMPLE_RATE = 44100;
+        const BUFFER_SIZE = 2048;
+        
+        function unlockAudio() {
+            if (audioCtx) {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().then(() => {
+                        console.log('AudioContext resumed');
+                    });
+                }
+                return;
+            }
+            
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext({ sampleRate: SAMPLE_RATE });
+                
+                // iOS 需要播放一个空的 buffer 来解锁
+                const buffer = audioCtx.createBuffer(1, 1, SAMPLE_RATE);
+                const source = audioCtx.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioCtx.destination);
+                source.start(0);
+                
+                // 创建音频处理节点
+                const scriptNode = audioCtx.createScriptProcessor(BUFFER_SIZE, 0, 2);
+                scriptNode.onaudioprocess = function(e) {
+                    if (!soundEnabled) return;
+                    
+                    const left = e.outputBuffer.getChannelData(0);
+                    const right = e.outputBuffer.getChannelData(1);
+                    
+                    for (let i = 0; i < BUFFER_SIZE; i++) {
+                        if (audioSamples.length >= 2) {
+                            left[i] = audioSamples.shift();
+                            right[i] = audioSamples.shift();
+                        } else {
+                            left[i] = 0;
+                            right[i] = 0;
+                        }
+                    }
+                };
+                scriptNode.connect(audioCtx.destination);
+                
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                
+                console.log('Audio initialized, state:', audioCtx.state);
+            } catch(e) {
+                console.error('Audio init error:', e);
+            }
+        }
+        
+        function toggleSound() {
+            // 先确保音频已解锁
+            unlockAudio();
+            
+            soundEnabled = !soundEnabled;
+            audioSamples = []; // 清空缓冲
+            
+            if (soundEnabled) {
+                soundBtn.textContent = '🔊 音效';
+                showStatus('🔊 音效已开启');
+            } else {
+                soundBtn.textContent = '🔇 音效';
+                showStatus('🔇 音效已关闭');
+            }
+        }
+        
+        // 在任何触摸时解锁音频
+        document.addEventListener('touchstart', unlockAudio, { once: true });
+        document.addEventListener('touchend', unlockAudio, { once: true });
+        document.addEventListener('click', unlockAudio, { once: true });
+        
+        // 从后台恢复时重新激活音频
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && soundEnabled) {
+                resumeAudio();
+            }
+        });
+        
+        // 恢复音频的函数
+        function resumeAudio() {
+            if (!audioCtx) {
+                unlockAudio();
+                return;
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume().then(() => {
+                    console.log('Audio resumed');
+                    showStatus('🔊 音效已恢复');
+                }).catch(e => console.error('Resume failed:', e));
+            }
+        }
+        
+        // 每次触摸都尝试恢复音频
+        document.addEventListener('touchstart', () => {
+            if (soundEnabled) resumeAudio();
+        }, { passive: true });
+        
+        document.addEventListener('touchend', () => {
+            if (soundEnabled) resumeAudio();
+        }, { passive: true });
+        
+        // ========== NES 模拟器 ==========
+        const imageData = ctx.createImageData(256, 240);
+        
+        const keyMap = {
+            'ArrowUp': jsnes.Controller.BUTTON_UP,
+            'ArrowDown': jsnes.Controller.BUTTON_DOWN,
+            'ArrowLeft': jsnes.Controller.BUTTON_LEFT,
+            'ArrowRight': jsnes.Controller.BUTTON_RIGHT,
+            'KeyX': jsnes.Controller.BUTTON_A, 'KeyK': jsnes.Controller.BUTTON_A,
+            'KeyZ': jsnes.Controller.BUTTON_B, 'KeyJ': jsnes.Controller.BUTTON_B,
+            'Enter': jsnes.Controller.BUTTON_START,
+            'ShiftRight': jsnes.Controller.BUTTON_SELECT, 'ShiftLeft': jsnes.Controller.BUTTON_SELECT,
+        };
+        
+        const touchMap = {
+            'up': jsnes.Controller.BUTTON_UP, 'down': jsnes.Controller.BUTTON_DOWN,
+            'left': jsnes.Controller.BUTTON_LEFT, 'right': jsnes.Controller.BUTTON_RIGHT,
+            'a': jsnes.Controller.BUTTON_A, 'b': jsnes.Controller.BUTTON_B,
+            'start': jsnes.Controller.BUTTON_START, 'select': jsnes.Controller.BUTTON_SELECT,
+        };
+        
+        function showStatus(msg, isError = false) {
+            status.style.background = isError ? 'rgba(255,0,0,0.15)' : 'rgba(0,255,0,0.15)';
+            status.style.color = isError ? '#ff6b6b' : '#4ade80';
+            status.textContent = msg;
+        }
+        
+        function initNES() {
+            nes = new jsnes.NES({
+                onFrame: function(buffer) { frameBuffer = buffer; },
+                onAudioSample: function(left, right) {
+                    if (soundEnabled && audioCtx && audioCtx.state === 'running') {
+                        audioSamples.push(left, right);
+                        // 限制缓冲区大小
+                        if (audioSamples.length > BUFFER_SIZE * 4) {
+                            audioSamples.splice(0, BUFFER_SIZE * 2);
+                        }
+                    }
+                }
+            });
+        }
+        
+        function loadROM(data) {
+            try {
+                romData = data; // 保存ROM数据用于重置
+                initNES();
+                nes.loadROM(data);
+                showStatus('✅ 点「🔇 音效」开声音，按START开始');
+                startGame();
+            } catch (e) { showStatus('❌ ' + e.message, true); }
+        }
+        
+        function startGame() {
+            if (animationId) cancelAnimationFrame(animationId);
+            function frame() {
+                if (!isPaused && nes) { nes.frame(); renderFrame(); }
+                animationId = requestAnimationFrame(frame);
+            }
+            frame();
+        }
+        
+        function renderFrame() {
+            if (!frameBuffer) return;
+            for (let i = 0; i < 256 * 240; i++) {
+                imageData.data[i * 4] = frameBuffer[i] & 0xFF;
+                imageData.data[i * 4 + 1] = (frameBuffer[i] >> 8) & 0xFF;
+                imageData.data[i * 4 + 2] = (frameBuffer[i] >> 16) & 0xFF;
+                imageData.data[i * 4 + 3] = 0xFF;
+            }
+            
+            const targetCtx = isFullscreen ? ctxFs : ctx;
+            const targetCanvas = isFullscreen ? canvasFs : canvas;
+            
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 256; tempCanvas.height = 240;
+            tempCanvas.getContext('2d').putImageData(imageData, 0, 0);
+            
+            targetCtx.imageSmoothingEnabled = false;
+            targetCtx.drawImage(tempCanvas, 0, 0, targetCanvas.width, targetCanvas.height);
+        }
+        
+        function togglePause() { 
+            isPaused = !isPaused; 
+            pauseBtn.textContent = isPaused ? '▶️' : '⏸️';
+            showStatus(isPaused ? '⏸️ 暂停' : '▶️ 继续'); 
+        }
+        
+        let romData = null; // 保存ROM数据
+        
+        function resetGame() { 
+            isPaused = false;
+            pauseBtn.textContent = '⏸️';
+            
+            if (romData) {
+                // 重新加载ROM
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                initNES();
+                nes.loadROM(romData);
+                startGame();
+                showStatus('🔄 游戏已重置'); 
+            }
+        }
+        
+        function enterFullscreen() {
+            isFullscreen = true;
+            document.getElementById('normalMode').style.display = 'none';
+            document.getElementById('fullscreenMode').classList.add('active');
+            
+            // 先进入全屏，再锁定横屏
+            const elem = document.documentElement;
+            const goFullscreen = elem.requestFullscreen || elem.webkitRequestFullscreen;
+            if (goFullscreen) {
+                goFullscreen.call(elem).then(() => {
+                    // 锁定横屏
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(() => {});
+                    }
+                    resizeFullscreenCanvas();
+                }).catch(() => {
+                    // 即使全屏失败也尝试锁定横屏
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(() => {});
+                    }
+                    resizeFullscreenCanvas();
+                });
+            } else {
+                resizeFullscreenCanvas();
+            }
+        }
+        
+        function exitFullscreen() {
+            isFullscreen = false;
+            document.getElementById('fullscreenMode').classList.remove('active');
+            document.getElementById('normalMode').style.display = 'flex';
+            if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+            if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+        }
+        
+        function resizeFullscreenCanvas() {
+            let w, h;
+            
+            // 检测是否竖屏（旋转模式）
+            if (window.innerHeight > window.innerWidth) {
+                // 竖屏时，宽高互换（因为我们旋转了90度）
+                w = window.innerHeight;
+                h = window.innerWidth;
+            } else {
+                w = window.innerWidth;
+                h = window.innerHeight;
+            }
+            
+            const ratio = 256 / 240;
+            
+            let ch = h;
+            let cw = ch * ratio;
+            
+            if (cw > w) {
+                cw = w;
+                ch = cw / ratio;
+            }
+            
+            canvasFs.width = 256;
+            canvasFs.height = 240;
+            canvasFs.style.width = Math.floor(cw) + 'px';
+            canvasFs.style.height = Math.floor(ch) + 'px';
+        }
+        
+        // ========== 事件绑定 ==========
+        function bindBtn(btn, fn) {
+            btn.ontouchend = (e) => { e.preventDefault(); fn(); };
+            btn.onclick = fn;
+        }
+        bindBtn(pauseBtn, togglePause);
+        bindBtn(resetBtn, resetGame);
+        bindBtn(fullscreenBtn, enterFullscreen);
+        bindBtn(exitFsBtn, exitFullscreen);
+        bindBtn(soundBtn, toggleSound);
+        
+        window.addEventListener('resize', () => { if (isFullscreen) resizeFullscreenCanvas(); });
+        window.addEventListener('orientationchange', () => { if (isFullscreen) setTimeout(resizeFullscreenCanvas, 100); });
+        
+        document.addEventListener('keydown', (e) => {
+            if (nes && keyMap[e.code]) { nes.buttonDown(1, keyMap[e.code]); e.preventDefault(); }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            if (nes && keyMap[e.code]) { nes.buttonUp(1, keyMap[e.code]); e.preventDefault(); }
+        });
+        
+        // ========== 虚拟摇杆式十字键 ==========
+        let activeDpadKeys = new Set();
+        let dpadTouchId = null;
+        let dpadCenter = null;
+        
+        function pressKey(key) {
+            if (!activeDpadKeys.has(key) && nes && touchMap[key]) {
+                nes.buttonDown(1, touchMap[key]);
+                activeDpadKeys.add(key);
+            }
+        }
+        
+        function releaseKey(key) {
+            if (activeDpadKeys.has(key) && nes && touchMap[key]) {
+                nes.buttonUp(1, touchMap[key]);
+                activeDpadKeys.delete(key);
+            }
+        }
+        
+        function releaseAllDpad() {
+            ['up', 'down', 'left', 'right'].forEach(k => releaseKey(k));
+            document.querySelectorAll('.dpad-btn').forEach(b => b.classList.remove('pressed'));
+            dpadTouchId = null;
+            dpadCenter = null;
+        }
+        
+        function updateDpadVisual(keys) {
+            document.querySelectorAll('.dpad-btn').forEach(b => {
+                const btnKey = b.dataset.key;
+                const btnKeys = b.dataset.keys ? b.dataset.keys.split(',') : [];
+                
+                if (btnKey && keys.has(btnKey)) {
+                    b.classList.add('pressed');
+                } else if (btnKeys.length && btnKeys.every(k => keys.has(k))) {
+                    b.classList.add('pressed');
+                } else {
+                    b.classList.remove('pressed');
+                }
+            });
+        }
+        
+        // 检测是否竖屏旋转模式
+        function isPortraitRotated() {
+            return window.innerHeight > window.innerWidth && isFullscreen;
+        }
+        
+        function calcDpadDirection(touch, center) {
+            let dx = touch.clientX - center.x;
+            let dy = touch.clientY - center.y;
+            
+            // 竖屏旋转模式下，坐标也要旋转90度
+            if (isPortraitRotated()) {
+                const temp = dx;
+                dx = dy;
+                dy = -temp;
+            }
+            
+            const deadzone = 15; // 死区半径
+            
+            const newKeys = new Set();
+            
+            if (Math.abs(dx) > deadzone || Math.abs(dy) > deadzone) {
+                // 8方向检测
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                // 上: -112.5 到 -67.5
+                // 右上: -67.5 到 -22.5
+                // 右: -22.5 到 22.5
+                // 右下: 22.5 到 67.5
+                // 下: 67.5 到 112.5
+                // 左下: 112.5 到 157.5
+                // 左: 157.5 到 180 或 -180 到 -157.5
+                // 左上: -157.5 到 -112.5
+                
+                if (angle >= -112.5 && angle < -67.5) {
+                    newKeys.add('up');
+                } else if (angle >= -67.5 && angle < -22.5) {
+                    newKeys.add('up'); newKeys.add('right');
+                } else if (angle >= -22.5 && angle < 22.5) {
+                    newKeys.add('right');
+                } else if (angle >= 22.5 && angle < 67.5) {
+                    newKeys.add('down'); newKeys.add('right');
+                } else if (angle >= 67.5 && angle < 112.5) {
+                    newKeys.add('down');
+                } else if (angle >= 112.5 && angle < 157.5) {
+                    newKeys.add('down'); newKeys.add('left');
+                } else if (angle >= 157.5 || angle < -157.5) {
+                    newKeys.add('left');
+                } else if (angle >= -157.5 && angle < -112.5) {
+                    newKeys.add('up'); newKeys.add('left');
+                }
+            }
+            
+            return newKeys;
+        }
+        
+        function handleDpadStart(e) {
+            e.preventDefault();
+            unlockAudio();
+            
+            const touch = e.changedTouches[0];
+            if (!touch) return;
+            
+            dpadTouchId = touch.identifier;
+            dpadCenter = { x: touch.clientX, y: touch.clientY };
+            
+            // 立即检测点击的是哪个按钮
+            const btn = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (btn && btn.classList.contains('dpad-btn')) {
+                const newKeys = new Set();
+                if (btn.dataset.keys) {
+                    btn.dataset.keys.split(',').forEach(k => newKeys.add(k));
+                } else if (btn.dataset.key) {
+                    newKeys.add(btn.dataset.key);
+                }
+                
+                newKeys.forEach(k => pressKey(k));
+                updateDpadVisual(newKeys);
+            }
+        }
+        
+        function handleDpadMove(e) {
+            e.preventDefault();
+            if (dpadTouchId === null || !dpadCenter) return;
+            
+            let touch = null;
+            for (let i = 0; i < e.touches.length; i++) {
+                if (e.touches[i].identifier === dpadTouchId) {
+                    touch = e.touches[i];
+                    break;
+                }
+            }
+            
+            if (!touch) return;
+            
+            const newKeys = calcDpadDirection(touch, dpadCenter);
+            
+            // 更新按键状态
+            ['up', 'down', 'left', 'right'].forEach(k => {
+                if (newKeys.has(k)) pressKey(k);
+                else releaseKey(k);
+            });
+            
+            updateDpadVisual(newKeys);
+        }
+        
+        function handleDpadEnd(e) {
+            e.preventDefault();
+            
+            let found = false;
+            for (let i = 0; i < e.touches.length; i++) {
+                if (e.touches[i].identifier === dpadTouchId) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                releaseAllDpad();
+            }
+        }
+        
+        // 为十字键容器添加虚拟摇杆支持
+        document.querySelectorAll('.dpad-container, .fs-dpad').forEach(container => {
+            container.addEventListener('touchstart', handleDpadStart, { passive: false });
+            container.addEventListener('touchmove', handleDpadMove, { passive: false });
+            container.addEventListener('touchend', handleDpadEnd, { passive: false });
+            container.addEventListener('touchcancel', handleDpadEnd, { passive: false });
+        });
+        
+        // ========== A/B/C/START/SELECT 按钮 ==========
+        let turboInterval = null;
+        
+        function setupActionButton(btn) {
+            const key = btn.dataset.key;
+            if (!key || ['up','down','left','right'].includes(key)) return; // 跳过方向键
+            
+            // 连发模式 (C键 = turbo-b)
+            if (key === 'turbo-b') {
+                function startTurbo(e) {
+                    e.preventDefault(); e.stopPropagation();
+                    unlockAudio();
+                    btn.classList.add('pressed');
+                    
+                    // 立即按一次
+                    if (nes) nes.buttonDown(1, touchMap['b']);
+                    
+                    // 开始连发 (每秒约15次)
+                    if (turboInterval) clearInterval(turboInterval);
+                    let isDown = true;
+                    turboInterval = setInterval(() => {
+                        if (nes) {
+                            if (isDown) nes.buttonUp(1, touchMap['b']);
+                            else nes.buttonDown(1, touchMap['b']);
+                            isDown = !isDown;
+                        }
+                    }, 33); // ~30次/秒切换 = 15次完整按放
+                }
+                
+                function stopTurbo(e) {
+                    e.preventDefault(); e.stopPropagation();
+                    btn.classList.remove('pressed');
+                    if (turboInterval) {
+                        clearInterval(turboInterval);
+                        turboInterval = null;
+                    }
+                    if (nes) nes.buttonUp(1, touchMap['b']);
+                }
+                
+                btn.addEventListener('touchstart', startTurbo, { passive: false });
+                btn.addEventListener('touchend', stopTurbo, { passive: false });
+                btn.addEventListener('touchcancel', stopTurbo, { passive: false });
+                btn.addEventListener('mousedown', startTurbo);
+                btn.addEventListener('mouseup', stopTurbo);
+                btn.addEventListener('mouseleave', stopTurbo);
+                return;
+            }
+            
+            function press(e) {
+                e.preventDefault(); e.stopPropagation();
+                unlockAudio();
+                btn.classList.add('pressed');
+                if (nes && touchMap[key] !== undefined) nes.buttonDown(1, touchMap[key]);
+            }
+            
+            function release(e) {
+                e.preventDefault(); e.stopPropagation();
+                btn.classList.remove('pressed');
+                if (nes && touchMap[key] !== undefined) nes.buttonUp(1, touchMap[key]);
+            }
+            
+            btn.addEventListener('touchstart', press, { passive: false });
+            btn.addEventListener('touchend', release, { passive: false });
+            btn.addEventListener('touchcancel', release, { passive: false });
+            btn.addEventListener('mousedown', press);
+            btn.addEventListener('mouseup', release);
+            btn.addEventListener('mouseleave', release);
+        }
+        
+        document.querySelectorAll('.action-btn, .small-btn').forEach(setupActionButton);
+        
+        // ========== 加载 ROM ==========
+        fetch('Contra%20(USA).nes')
+            .then(r => { if (!r.ok) throw new Error('ROM未找到'); return r.arrayBuffer(); })
+            .then(buf => { const d = new Uint8Array(buf); let s = ''; for (let i = 0; i < d.length; i++) s += String.fromCharCode(d[i]); loadROM(s); })
+            .catch(e => showStatus('❌ ' + e.message, true));
+        
+        document.body.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+    </script>
+</body>
+</html>
