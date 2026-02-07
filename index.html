@@ -91,9 +91,8 @@
         
         .dpad-container {
             position: relative;
-            width: 200px;
-            height: 200px;
-            margin: -10px;
+            width: 110px;
+            height: 110px;
         }
         
         .dpad-bg {
@@ -101,8 +100,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             background: rgba(50,50,50,0.5);
             border-radius: 50%;
         }
@@ -115,21 +114,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 16px;
             -webkit-tap-highlight-color: transparent;
         }
         
         .dpad-btn:active, .dpad-btn.pressed { background: #e94560; color: #fff; }
         
-        .dpad-up { top: 15px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; border-radius: 10px; font-size: 22px; }
-        .dpad-down { bottom: 15px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; border-radius: 10px; font-size: 22px; }
-        .dpad-left { left: 15px; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 10px; font-size: 22px; }
-        .dpad-right { right: 15px; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 10px; font-size: 22px; }
+        .dpad-up { top: 0; left: 50%; transform: translateX(-50%); width: 36px; height: 36px; border-radius: 8px; }
+        .dpad-down { bottom: 0; left: 50%; transform: translateX(-50%); width: 36px; height: 36px; border-radius: 8px; }
+        .dpad-left { left: 0; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 8px; }
+        .dpad-right { right: 0; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 8px; }
         
-        .dpad-ul { top: 20px; left: 20px; width: 35px; height: 35px; border-radius: 8px; font-size: 14px; opacity: 0.6; }
-        .dpad-ur { top: 20px; right: 20px; width: 35px; height: 35px; border-radius: 8px; font-size: 14px; opacity: 0.6; }
-        .dpad-dl { bottom: 20px; left: 20px; width: 35px; height: 35px; border-radius: 8px; font-size: 14px; opacity: 0.6; }
-        .dpad-dr { bottom: 20px; right: 20px; width: 35px; height: 35px; border-radius: 8px; font-size: 14px; opacity: 0.6; }
+        .dpad-ul { top: 5px; left: 5px; width: 24px; height: 24px; border-radius: 5px; font-size: 10px; opacity: 0.6; }
+        .dpad-ur { top: 5px; right: 5px; width: 24px; height: 24px; border-radius: 5px; font-size: 10px; opacity: 0.6; }
+        .dpad-dl { bottom: 5px; left: 5px; width: 24px; height: 24px; border-radius: 5px; font-size: 10px; opacity: 0.6; }
+        .dpad-dr { bottom: 5px; right: 5px; width: 24px; height: 24px; border-radius: 5px; font-size: 10px; opacity: 0.6; }
         
         .right-controls { display: flex; flex-direction: column; align-items: center; gap: 8px; }
         
@@ -206,17 +205,28 @@
             image-rendering: pixelated;
         }
         
-        /* 左侧十字键 - 叠加在画布上 */
+        /* 左侧十字键 - 覆盖整个左半屏 */
         .fs-dpad {
             position: absolute;
-            left: 60px;
-            bottom: 5%;
-            width: 200px;
-            height: 200px;
+            left: 0;
+            top: 0;
+            width: 50%;
+            height: 100%;
             z-index: 10000;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 5%;
+            padding-left: 30px;
         }
         
-        .fs-dpad .dpad-bg {
+        .fs-dpad-inner {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+        
+        .fs-dpad-inner .dpad-bg {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -227,7 +237,7 @@
             border-radius: 50%;
         }
         
-        .fs-dpad .dpad-btn {
+        .fs-dpad-inner .dpad-btn {
             position: absolute;
             background: rgba(255,255,255,0.1);
             border: 2px solid rgba(233,69,96,0.6);
@@ -238,17 +248,17 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        .fs-dpad .dpad-btn:active, .fs-dpad .dpad-btn.pressed { background: rgba(233,69,96,0.8); color: #fff; }
+        .fs-dpad-inner .dpad-btn:active, .fs-dpad-inner .dpad-btn.pressed { background: rgba(233,69,96,0.8); color: #fff; }
         
-        .fs-dpad .dpad-up { top: 20px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; border-radius: 10px; font-size: 20px; }
-        .fs-dpad .dpad-down { bottom: 20px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; border-radius: 10px; font-size: 20px; }
-        .fs-dpad .dpad-left { left: 20px; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 10px; font-size: 20px; }
-        .fs-dpad .dpad-right { right: 20px; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 10px; font-size: 20px; }
+        .fs-dpad-inner .dpad-up { top: 15px; left: 50%; transform: translateX(-50%); width: 45px; height: 45px; border-radius: 10px; font-size: 18px; }
+        .fs-dpad-inner .dpad-down { bottom: 15px; left: 50%; transform: translateX(-50%); width: 45px; height: 45px; border-radius: 10px; font-size: 18px; }
+        .fs-dpad-inner .dpad-left { left: 15px; top: 50%; transform: translateY(-50%); width: 45px; height: 45px; border-radius: 10px; font-size: 18px; }
+        .fs-dpad-inner .dpad-right { right: 15px; top: 50%; transform: translateY(-50%); width: 45px; height: 45px; border-radius: 10px; font-size: 18px; }
         
-        .fs-dpad .dpad-ul { top: 25px; left: 25px; width: 35px; height: 35px; border-radius: 8px; font-size: 12px; opacity: 0.5; }
-        .fs-dpad .dpad-ur { top: 25px; right: 25px; width: 35px; height: 35px; border-radius: 8px; font-size: 12px; opacity: 0.5; }
-        .fs-dpad .dpad-dl { bottom: 25px; left: 25px; width: 35px; height: 35px; border-radius: 8px; font-size: 12px; opacity: 0.5; }
-        .fs-dpad .dpad-dr { bottom: 25px; right: 25px; width: 35px; height: 35px; border-radius: 8px; font-size: 12px; opacity: 0.5; }
+        .fs-dpad-inner .dpad-ul { top: 20px; left: 20px; width: 32px; height: 32px; border-radius: 8px; font-size: 12px; opacity: 0.5; }
+        .fs-dpad-inner .dpad-ur { top: 20px; right: 20px; width: 32px; height: 32px; border-radius: 8px; font-size: 12px; opacity: 0.5; }
+        .fs-dpad-inner .dpad-dl { bottom: 20px; left: 20px; width: 32px; height: 32px; border-radius: 8px; font-size: 12px; opacity: 0.5; }
+        .fs-dpad-inner .dpad-dr { bottom: 20px; right: 20px; width: 32px; height: 32px; border-radius: 8px; font-size: 12px; opacity: 0.5; }
         
         /* 右侧按钮区 - A/B + SELECT/START */
         .fs-buttons {
@@ -402,16 +412,18 @@
         
         <canvas id="game-canvas-fs" width="512" height="480"></canvas>
         
-        <div class="fs-dpad">
-            <div class="dpad-bg"></div>
-            <button class="dpad-btn dpad-up" data-key="up">↑</button>
-            <button class="dpad-btn dpad-down" data-key="down">↓</button>
-            <button class="dpad-btn dpad-left" data-key="left">←</button>
-            <button class="dpad-btn dpad-right" data-key="right">→</button>
-            <button class="dpad-btn dpad-ul" data-keys="up,left">↖</button>
-            <button class="dpad-btn dpad-ur" data-keys="up,right">↗</button>
-            <button class="dpad-btn dpad-dl" data-keys="down,left">↙</button>
-            <button class="dpad-btn dpad-dr" data-keys="down,right">↘</button>
+        <div class="fs-dpad" id="fsDpad">
+            <div class="fs-dpad-inner">
+                <div class="dpad-bg"></div>
+                <button class="dpad-btn dpad-up" data-key="up">↑</button>
+                <button class="dpad-btn dpad-down" data-key="down">↓</button>
+                <button class="dpad-btn dpad-left" data-key="left">←</button>
+                <button class="dpad-btn dpad-right" data-key="right">→</button>
+                <button class="dpad-btn dpad-ul" data-keys="up,left">↖</button>
+                <button class="dpad-btn dpad-ur" data-keys="up,right">↗</button>
+                <button class="dpad-btn dpad-dl" data-keys="down,left">↙</button>
+                <button class="dpad-btn dpad-dr" data-keys="down,right">↘</button>
+            </div>
         </div>
         
         <div class="fs-buttons">
@@ -768,13 +780,14 @@
         
         function releaseAllDpad() {
             ['up', 'down', 'left', 'right'].forEach(k => releaseKey(k));
-            document.querySelectorAll('.dpad-btn').forEach(b => b.classList.remove('pressed'));
+            document.querySelectorAll('.dpad-container .dpad-btn, .fs-dpad-inner .dpad-btn').forEach(b => b.classList.remove('pressed'));
             dpadTouchId = null;
             dpadCenter = null;
         }
         
         function updateDpadVisual(keys) {
-            document.querySelectorAll('.dpad-btn').forEach(b => {
+            // 更新竖屏和横屏的方向键按钮
+            document.querySelectorAll('.dpad-container .dpad-btn, .fs-dpad-inner .dpad-btn').forEach(b => {
                 const btnKey = b.dataset.key;
                 const btnKeys = b.dataset.keys ? b.dataset.keys.split(',') : [];
                 
@@ -912,13 +925,56 @@
             }
         }
         
-        // 为十字键容器添加虚拟摇杆支持
-        document.querySelectorAll('.dpad-container, .fs-dpad').forEach(container => {
+        // 获取 fs-dpad-inner 的中心点（用于横屏方向计算）
+        function getFsDpadCenter() {
+            const inner = document.querySelector('.fs-dpad-inner');
+            if (!inner) return null;
+            const rect = inner.getBoundingClientRect();
+            return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+        }
+        
+        function handleFsDpadStart(e) {
+            e.preventDefault();
+            unlockAudio();
+            
+            const touch = e.changedTouches[0];
+            if (!touch) return;
+            
+            // 使用 fs-dpad-inner 的中心作为参考点
+            const center = getFsDpadCenter();
+            if (!center) return;
+            
+            dpadTouchId = touch.identifier;
+            dpadCenter = center;
+            
+            // 立即计算方向
+            const newKeys = calcDpadDirection(touch, dpadCenter);
+            
+            // 更新按键状态
+            ['up', 'down', 'left', 'right'].forEach(k => {
+                if (newKeys.has(k)) pressKey(k);
+                else releaseKey(k);
+            });
+            
+            updateDpadVisual(newKeys);
+        }
+        
+        // 为竖屏十字键容器添加虚拟摇杆支持
+        document.querySelectorAll('.dpad-container').forEach(container => {
             container.addEventListener('touchstart', handleDpadStart, { passive: false });
             container.addEventListener('touchmove', handleDpadMove, { passive: false });
             container.addEventListener('touchend', handleDpadEnd, { passive: false });
             container.addEventListener('touchcancel', handleDpadEnd, { passive: false });
         });
+        
+        // 为横屏整个左半屏区域添加虚拟摇杆支持
+        const fsDpad = document.getElementById('fsDpad');
+        if (fsDpad) {
+            fsDpad.addEventListener('touchstart', handleFsDpadStart, { passive: false });
+            fsDpad.addEventListener('touchmove', handleDpadMove, { passive: false });
+            fsDpad.addEventListener('touchend', handleDpadEnd, { passive: false });
+            fsDpad.addEventListener('touchcancel', handleDpadEnd, { passive: false });
+        }
         
         // ========== A/B/C/START/SELECT 按钮 ==========
         let turboInterval = null;
